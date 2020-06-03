@@ -1,0 +1,3154 @@
+{
+	"info": {
+		"_postman_id": "93d13ba4-6d49-47ed-9a8d-1142d5aa341f",
+		"name": "Recruiter System Connect",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Module 1 - Configure Customer Middleware Integrations (Partner Only )",
+			"item": [
+				{
+					"name": "Provision Customer (Child) Applications",
+					"item": [
+						{
+							"name": "Parent Application Access Token",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "626117d6-8b8b-4cfd-9a76-dbbd53bcd24e",
+										"exec": [
+											"var jsonData = JSON.parse(responseBody);",
+											"pm.globals.set(\"partner_access_token\", jsonData.access_token);"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"name": "Content-Type",
+										"type": "text",
+										"value": "text/plain"
+									}
+								],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "grant_type",
+											"value": "client_credentials",
+											"type": "text"
+										},
+										{
+											"key": "client_id",
+											"value": "{{partner_app_client_id}}",
+											"type": "text"
+										},
+										{
+											"key": "client_secret",
+											"value": "{{partner_app_client_secret}}",
+											"type": "text"
+										}
+									],
+									"options": {
+										"raw": {
+											"language": "text"
+										}
+									}
+								},
+								"url": {
+									"raw": "https://www.linkedin.com/oauth/v2/accessToken",
+									"protocol": "https",
+									"host": [
+										"www",
+										"linkedin",
+										"com"
+									],
+									"path": [
+										"oauth",
+										"v2",
+										"accessToken"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Provision Child Application",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "f5719568-01e4-405b-baa4-e4e1c73a5f22",
+										"exec": [
+											"var jsonData = JSON.parse(responseBody);",
+											"pm.globals.set(\"customer_application_urn\", jsonData.key);"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{partner_access_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"name": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"description\": \"TEST APP FOR {{customer_name}}\",\n    \"name\": \"{{customer_name}}\",\n    \"uniqueForeignId\": \"{{unique_foreign_id}}\",\n    \"oauth2AuthorizedCallbackUrls\": [\"https://app.getpostman.com/oauth2/callback\"],\n    \"validJsSdkDomains\": [\"http://localhost:5000\"]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "https://api.linkedin.com/v2/provisionedApplications",
+									"protocol": "https",
+									"host": [
+										"api",
+										"linkedin",
+										"com"
+									],
+									"path": [
+										"v2",
+										"provisionedApplications"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update JavaScript SDK Domain for Child Application",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{partner_access_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"patch\": {\n        \"$set\": {\n            \"validJsSdkDomains\": [\n                \"http://localhost:8000\",\n                \"http://localhost:5000\"\n            ]\n        }\n    }\n}"
+								},
+								"url": {
+									"raw": "https://api.linkedin.com/v2/provisionedApplications/{{customer_application_urn}}",
+									"protocol": "https",
+									"host": [
+										"api",
+										"linkedin",
+										"com"
+									],
+									"path": [
+										"v2",
+										"provisionedApplications",
+										"{{customer_application_urn}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update OAuth2.0 Authorized CallBack URL for Child Application",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{partner_access_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"patch\": {\n        \"$set\": {\n            \"oauth2AuthorizedCallbackUrls\": [\n                \"https://app.getpostman.com/oauth2/callback\"\n            ]\n        }\n    }\n}"
+								},
+								"url": {
+									"raw": "https://api.linkedin.com/v2/provisionedApplications/{{customer_application_urn}}",
+									"protocol": "https",
+									"host": [
+										"api",
+										"linkedin",
+										"com"
+									],
+									"path": [
+										"v2",
+										"provisionedApplications",
+										"{{customer_application_urn}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get Child Application",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{partner_access_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "https://api.linkedin.com/v2/provisionedApplications?q=credentialsByUniqueForeignId&uniqueForeignId={{unique_foreign_id}}",
+									"protocol": "https",
+									"host": [
+										"api",
+										"linkedin",
+										"com"
+									],
+									"path": [
+										"v2",
+										"provisionedApplications"
+									],
+									"query": [
+										{
+											"key": "q",
+											"value": "credentialsByUniqueForeignId"
+										},
+										{
+											"key": "uniqueForeignId",
+											"value": "{{unique_foreign_id}}"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"auth": {
+						"type": "noauth"
+					},
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "9149d6bf-6059-4b63-928d-6bf2aa50bb95",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "8d2715ec-06e0-4816-94d2-5876ea657aea",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					],
+					"protocolProfileBehavior": {},
+					"_postman_isSubFolder": true
+				},
+				{
+					"name": "Configure Customer Middleware Integrations",
+					"item": [
+						{
+							"name": "Update Customer's ATSIntegration (Mandatory)",
+							"item": [
+								{
+									"name": "Update Customer ATSIntegration - ONE_CLICK_EXPORT",
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{customer_access_token}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [
+											{
+												"key": "x-restli-method",
+												"value": "batch_partial_update",
+												"type": "text"
+											},
+											{
+												"key": "Content-Type",
+												"name": "Content-Type",
+												"value": "application/json",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"entities\": {\n    \"integrationContext=urn:li:organization:{{org_id}}&integrationType=ONE_CLICK_EXPORT&tenantType=RECRUITER&dataProvider=ATS\": {\n      \"patch\": {\n        \"$set\": {\n          \"integrationName\": \"{{customer_name}} LinkedIn Recruiter One-Click Export Integration\"\n        }\n      }\n    }\n  }\n}"
+										},
+										"url": {
+											"raw": "https://api.linkedin.com/v2/atsIntegrations?ids[0].integrationContext=urn:li:organization:{{org_id}}&ids[0].integrationType=ONE_CLICK_EXPORT&ids[0].tenantType=RECRUITER&ids[0].dataProvider=ATS",
+											"protocol": "https",
+											"host": [
+												"api",
+												"linkedin",
+												"com"
+											],
+											"path": [
+												"v2",
+												"atsIntegrations"
+											],
+											"query": [
+												{
+													"key": "ids[0].integrationContext",
+													"value": "urn:li:organization:{{org_id}}"
+												},
+												{
+													"key": "ids[0].integrationType",
+													"value": "ONE_CLICK_EXPORT"
+												},
+												{
+													"key": "ids[0].tenantType",
+													"value": "RECRUITER"
+												},
+												{
+													"key": "ids[0].dataProvider",
+													"value": "ATS"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Update Customer ATSIntegration - IN_ATS_INDICATOR",
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{customer_access_token}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [
+											{
+												"key": "x-restli-method",
+												"value": "batch_partial_update",
+												"type": "text"
+											},
+											{
+												"key": "Content-Type",
+												"name": "Content-Type",
+												"value": "application/json",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"entities\": {\n    \"integrationContext=urn:li:organization:{{org_id}}&integrationType=IN_ATS_INDICATOR&tenantType=RECRUITER&dataProvider=ATS\": {\n      \"patch\": {\n        \"$set\": {\n          \"integrationName\": \"{{customer_name}} LinkedIn Recruiter ATS Indicator Integration\"\n        }\n      }\n    }\n  }\n}"
+										},
+										"url": {
+											"raw": "https://api.linkedin.com/v2/atsIntegrations?ids[0].integrationContext=urn:li:organization:{{org_id}}&ids[0].integrationType=IN_ATS_INDICATOR&ids[0].tenantType=RECRUITER&ids[0].dataProvider=ATS",
+											"protocol": "https",
+											"host": [
+												"api",
+												"linkedin",
+												"com"
+											],
+											"path": [
+												"v2",
+												"atsIntegrations"
+											],
+											"query": [
+												{
+													"key": "ids[0].integrationContext",
+													"value": "urn:li:organization:{{org_id}}"
+												},
+												{
+													"key": "ids[0].integrationType",
+													"value": "IN_ATS_INDICATOR"
+												},
+												{
+													"key": "ids[0].tenantType",
+													"value": "RECRUITER"
+												},
+												{
+													"key": "ids[0].dataProvider",
+													"value": "ATS"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Update Customer ATSIntegration - PROFILE_PLUGIN",
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{customer_access_token}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [
+											{
+												"key": "x-restli-method",
+												"value": "batch_partial_update",
+												"type": "text"
+											},
+											{
+												"key": "Content-Type",
+												"name": "Content-Type",
+												"value": "application/json",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"entities\": {\n    \"integrationContext=urn:li:organization:{{org_id}}&integrationType=PROFILE_PLUGIN&tenantType=RECRUITER&dataProvider=ATS\": {\n      \"patch\": {\n        \"$set\": {\n          \"integrationName\": \"{{customer_name}} LinkedIn Recruiter Profile Plugin Integration\"\n        }\n      }\n    }\n  }\n}"
+										},
+										"url": {
+											"raw": "https://api.linkedin.com/v2/atsIntegrations?ids[0].integrationContext=urn:li:organization:{{org_id}}&ids[0].integrationType=PROFILE_PLUGIN&ids[0].tenantType=RECRUITER&ids[0].dataProvider=ATS",
+											"protocol": "https",
+											"host": [
+												"api",
+												"linkedin",
+												"com"
+											],
+											"path": [
+												"v2",
+												"atsIntegrations"
+											],
+											"query": [
+												{
+													"key": "ids[0].integrationContext",
+													"value": "urn:li:organization:{{org_id}}"
+												},
+												{
+													"key": "ids[0].integrationType",
+													"value": "PROFILE_PLUGIN"
+												},
+												{
+													"key": "ids[0].tenantType",
+													"value": "RECRUITER"
+												},
+												{
+													"key": "ids[0].dataProvider",
+													"value": "ATS"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Update Customer ATSIntegration - CSA_API",
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{customer_access_token}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [
+											{
+												"key": "x-restli-method",
+												"value": "batch_partial_update",
+												"type": "text"
+											},
+											{
+												"key": "Content-Type",
+												"name": "Content-Type",
+												"value": "application/json",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"entities\": {\n    \"integrationContext=urn:li:contract:{{contract_id}}&integrationType=CSA_API&tenantType=RECRUITER&dataProvider=ATS\": {\n      \"patch\": {\n        \"$set\": {\n          \"integrationName\": \"{{customer_name}} LinkedIn Recruiter CSA_API Integration\"\n        }\n      }\n    }\n  }\n}"
+										},
+										"url": {
+											"raw": "https://api.linkedin.com/v2/atsIntegrations?ids[0].integrationContext=urn:li:contract:{{contract_id}}&ids[0].integrationType=CSA_API&ids[0].tenantType=RECRUITER&ids[0].dataProvider=ATS",
+											"protocol": "https",
+											"host": [
+												"api",
+												"linkedin",
+												"com"
+											],
+											"path": [
+												"v2",
+												"atsIntegrations"
+											],
+											"query": [
+												{
+													"key": "ids[0].integrationContext",
+													"value": "urn:li:contract:{{contract_id}}"
+												},
+												{
+													"key": "ids[0].integrationType",
+													"value": "CSA_API"
+												},
+												{
+													"key": "ids[0].tenantType",
+													"value": "RECRUITER"
+												},
+												{
+													"key": "ids[0].dataProvider",
+													"value": "ATS"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Verify Customer's  ATSIntegrations",
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{customer_access_token}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "https://api.linkedin.com/v2/atsIntegrations?ids[0].integrationContext=urn:li:organization:{{org_id}}&ids[0].integrationType=IN_ATS_INDICATOR&ids[0].tenantType=RECRUITER&ids[0].dataProvider=ATS&ids[1].integrationContext=urn:li:organization:{{org_id}}&ids[1].integrationType=PROFILE_PLUGIN&ids[1].tenantType=RECRUITER&ids[1].dataProvider=ATS&ids[2].integrationContext=urn:li:organization:{{org_id}}&ids[2].integrationType=ONE_CLICK_EXPORT&ids[2].tenantType=RECRUITER&ids[2].dataProvider=ATS&ids[3].integrationContext=urn:li:contract:{{contract_id}}&ids[3].integrationType=CSA_API&ids[3].tenantType=RECRUITER&ids[3].dataProvider=ATS",
+											"protocol": "https",
+											"host": [
+												"api",
+												"linkedin",
+												"com"
+											],
+											"path": [
+												"v2",
+												"atsIntegrations"
+											],
+											"query": [
+												{
+													"key": "ids[0].integrationContext",
+													"value": "urn:li:organization:{{org_id}}"
+												},
+												{
+													"key": "ids[0].integrationType",
+													"value": "IN_ATS_INDICATOR"
+												},
+												{
+													"key": "ids[0].tenantType",
+													"value": "RECRUITER"
+												},
+												{
+													"key": "ids[0].dataProvider",
+													"value": "ATS"
+												},
+												{
+													"key": "ids[1].integrationContext",
+													"value": "urn:li:organization:{{org_id}}"
+												},
+												{
+													"key": "ids[1].integrationType",
+													"value": "PROFILE_PLUGIN"
+												},
+												{
+													"key": "ids[1].tenantType",
+													"value": "RECRUITER"
+												},
+												{
+													"key": "ids[1].dataProvider",
+													"value": "ATS"
+												},
+												{
+													"key": "ids[2].integrationContext",
+													"value": "urn:li:organization:{{org_id}}"
+												},
+												{
+													"key": "ids[2].integrationType",
+													"value": "ONE_CLICK_EXPORT"
+												},
+												{
+													"key": "ids[2].tenantType",
+													"value": "RECRUITER"
+												},
+												{
+													"key": "ids[2].dataProvider",
+													"value": "ATS"
+												},
+												{
+													"key": "ids[3].integrationContext",
+													"value": "urn:li:contract:{{contract_id}}"
+												},
+												{
+													"key": "ids[3].integrationType",
+													"value": "CSA_API"
+												},
+												{
+													"key": "ids[3].tenantType",
+													"value": "RECRUITER"
+												},
+												{
+													"key": "ids[3].dataProvider",
+													"value": "ATS"
+												}
+											]
+										}
+									},
+									"response": []
+								}
+							],
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"id": "d7005c93-ab5d-4f90-8f56-53dea5f3269d",
+										"type": "text/javascript",
+										"exec": [
+											""
+										]
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"id": "f70b1aaa-a349-420d-b96c-3bf51c019647",
+										"type": "text/javascript",
+										"exec": [
+											""
+										]
+									}
+								}
+							],
+							"protocolProfileBehavior": {},
+							"_postman_isSubFolder": true
+						},
+						{
+							"name": "Sync Integration Configurations (Mandatory)",
+							"item": [
+								{
+									"name": "Sync Integration Configuration - Callback URL (Mandatory)",
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{customer_access_token}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "PUT",
+										"header": [
+											{
+												"key": "x-restli-method",
+												"value": "batch_update"
+											},
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"entities\": {\n    \"CALLBACK_URL\": {\n      \"configurationValue\": {\n        \"string\": \"<https://YourCallbackURL>\"\n      }\n    }\n  }\n}"
+										},
+										"url": {
+											"raw": "https://api.linkedin.com/v2/atsIntegrations/integrationContext=urn:li:organization:{{org_id}}&integrationType=ONE_CLICK_EXPORT&tenantType=RECRUITER&dataProvider=ATS/configurations?ids=CALLBACK_URL",
+											"protocol": "https",
+											"host": [
+												"api",
+												"linkedin",
+												"com"
+											],
+											"path": [
+												"v2",
+												"atsIntegrations",
+												"integrationContext=urn:li:organization:{{org_id}}&integrationType=ONE_CLICK_EXPORT&tenantType=RECRUITER&dataProvider=ATS",
+												"configurations"
+											],
+											"query": [
+												{
+													"key": "ids",
+													"value": "CALLBACK_URL"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Sync Integration Configuration - Job Posting Viewers (Optional)",
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{customer_access_token}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "PUT",
+										"header": [
+											{
+												"key": "x-restli-method",
+												"value": "batch_update"
+											},
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"entities\": {\n    \"JOB_POSTING_VIEWERS\": {\n      \"configurationValue\": {\n        \"string\": \"ALL_PRODUCT_USERS\"\n      }\n    }\n  }\n}"
+										},
+										"url": {
+											"raw": "https://api.linkedin.com/v2/atsIntegrations/integrationContext=urn:li:organization:{{org_id}}&integrationType=ONE_CLICK_EXPORT&tenantType=RECRUITER&dataProvider=ATS/configurations?ids=JOB_POSTING_VIEWERS",
+											"protocol": "https",
+											"host": [
+												"api",
+												"linkedin",
+												"com"
+											],
+											"path": [
+												"v2",
+												"atsIntegrations",
+												"integrationContext=urn:li:organization:{{org_id}}&integrationType=ONE_CLICK_EXPORT&tenantType=RECRUITER&dataProvider=ATS",
+												"configurations"
+											],
+											"query": [
+												{
+													"key": "ids",
+													"value": "JOB_POSTING_VIEWERS"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Sync Integration Configuration - Application Viewers (Optional)",
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{customer_access_token}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "PUT",
+										"header": [
+											{
+												"key": "x-restli-method",
+												"value": "batch_update"
+											},
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"entities\": {\n    \"APPLICATION_VIEWERS\": {\n      \"configurationValue\": {\n        \"string\": \"ALL_PRODUCT_USERS\"\n      }\n    }\n  }\n}"
+										},
+										"url": {
+											"raw": "https://api.linkedin.com/v2/atsIntegrations/integrationContext=urn:li:organization:{{org_id}}&integrationType=IN_ATS_INDICATOR&tenantType=RECRUITER&dataProvider=ATS/configurations?ids=APPLICATION_VIEWERS",
+											"protocol": "https",
+											"host": [
+												"api",
+												"linkedin",
+												"com"
+											],
+											"path": [
+												"v2",
+												"atsIntegrations",
+												"integrationContext=urn:li:organization:{{org_id}}&integrationType=IN_ATS_INDICATOR&tenantType=RECRUITER&dataProvider=ATS",
+												"configurations"
+											],
+											"query": [
+												{
+													"key": "ids",
+													"value": "APPLICATION_VIEWERS"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Delete Integration Configuration - Job Posting Viewers",
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{customer_access_token}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "DELETE",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": ""
+										},
+										"url": {
+											"raw": "https://api.linkedin.com/v2/atsIntegrations/integrationContext=urn:li:organization:{{org_id}}&integrationType=ONE_CLICK_EXPORT&tenantType=RECRUITER&dataProvider=ATS/configurations?ids=JOB_POSTING_VIEWERS",
+											"protocol": "https",
+											"host": [
+												"api",
+												"linkedin",
+												"com"
+											],
+											"path": [
+												"v2",
+												"atsIntegrations",
+												"integrationContext=urn:li:organization:{{org_id}}&integrationType=ONE_CLICK_EXPORT&tenantType=RECRUITER&dataProvider=ATS",
+												"configurations"
+											],
+											"query": [
+												{
+													"key": "ids",
+													"value": "JOB_POSTING_VIEWERS"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Delete Integration Configuration - Application Viewers",
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{customer_access_token}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "DELETE",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": ""
+										},
+										"url": {
+											"raw": "https://api.linkedin.com/v2/atsIntegrations/integrationContext=urn:li:organization:{{org_id}}&integrationType=IN_ATS_INDICATOR&tenantType=RECRUITER&dataProvider=ATS/configurations?ids=APPLICATION_VIEWERS",
+											"protocol": "https",
+											"host": [
+												"api",
+												"linkedin",
+												"com"
+											],
+											"path": [
+												"v2",
+												"atsIntegrations",
+												"integrationContext=urn:li:organization:{{org_id}}&integrationType=IN_ATS_INDICATOR&tenantType=RECRUITER&dataProvider=ATS",
+												"configurations"
+											],
+											"query": [
+												{
+													"key": "ids",
+													"value": "APPLICATION_VIEWERS"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Verify Customer Integrations - Configs",
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{customer_access_token}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "https://api.linkedin.com/v2/atsIntegrations/integrationContext=urn:li:organization:{{org_id}}&integrationType=ONE_CLICK_EXPORT&tenantType=RECRUITER&dataProvider=ATS/configurations?ids=CALLBACK_URL",
+											"protocol": "https",
+											"host": [
+												"api",
+												"linkedin",
+												"com"
+											],
+											"path": [
+												"v2",
+												"atsIntegrations",
+												"integrationContext=urn:li:organization:{{org_id}}&integrationType=ONE_CLICK_EXPORT&tenantType=RECRUITER&dataProvider=ATS",
+												"configurations"
+											],
+											"query": [
+												{
+													"key": "ids",
+													"value": "CALLBACK_URL"
+												}
+											]
+										}
+									},
+									"response": []
+								}
+							],
+							"protocolProfileBehavior": {},
+							"_postman_isSubFolder": true
+						},
+						{
+							"name": "Retrieve PUSH Notification Content",
+							"item": [
+								{
+									"name": "GET Notification Type INTEGRATION_STATUS_CHANGE",
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{customer_access_token}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "https://api.linkedin.com/v2/atsIntegrations?q=request&requestId={{Enter_Request_ID_obtained_from_POST_in_CallbackURL}}",
+											"protocol": "https",
+											"host": [
+												"api",
+												"linkedin",
+												"com"
+											],
+											"path": [
+												"v2",
+												"atsIntegrations"
+											],
+											"query": [
+												{
+													"key": "q",
+													"value": "request"
+												},
+												{
+													"key": "requestId",
+													"value": "{{Enter_Request_ID_obtained_from_POST_in_CallbackURL}}"
+												}
+											]
+										}
+									},
+									"response": []
+								}
+							],
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"id": "09077fc0-ec82-4e5c-b55e-92dfe292bd33",
+										"type": "text/javascript",
+										"exec": [
+											""
+										]
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"id": "c4b5a4a9-ff9a-42ec-a161-99fb00a21191",
+										"type": "text/javascript",
+										"exec": [
+											""
+										]
+									}
+								}
+							],
+							"protocolProfileBehavior": {},
+							"_postman_isSubFolder": true
+						}
+					],
+					"auth": {
+						"type": "bearer",
+						"bearer": [
+							{
+								"key": "token",
+								"value": "{{customer_access_token}}",
+								"type": "string"
+							}
+						]
+					},
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "b8da2283-cdb1-433c-b8fb-7b4e08b95a1d",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "7e47ac68-418e-4650-88df-3e4654a5e3a4",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					],
+					"protocolProfileBehavior": {},
+					"_postman_isSubFolder": true
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "Module 2 - Sync data from ATS to Linkedin",
+			"item": [
+				{
+					"name": "Sync Jobs",
+					"item": [
+						{
+							"name": "Create Public Job",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "537edfd5-f747-4f5d-acb2-7f9572259560",
+										"exec": [
+											"var jsonData = JSON.parse(responseBody);",
+											"pm.globals.set(\"public_simplejobpostingtask_id\", jsonData.elements[0].id);"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{customer_access_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "x-restli-method",
+										"value": "batch_create"
+									},
+									{
+										"key": "Content-Type",
+										"name": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"elements\": [\n        {\n            \"integrationContext\": \"urn:li:organization:{{org_id}}\",\n            \"externalJobPostingId\": \"{{public_externalJobPostingId}}\",\n            \"title\": \"Senior Software Engineer\",\n            \"description\": \"Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.\",\n            \"location\": \"San Francisco, CA\",\n            \"availability\": \"PUBLIC\",\n            \"state\": \"LISTED\",\n            \"companyApplyUrl\": \"http://localhost:5000/jobs\",\n            \"listedAt\": {{$timestamp}}000\n        }\n    ]\n}"
+								},
+								"url": {
+									"raw": "https://api.linkedin.com/v2/simpleJobPostings",
+									"protocol": "https",
+									"host": [
+										"api",
+										"linkedin",
+										"com"
+									],
+									"path": [
+										"v2",
+										"simpleJobPostings"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get Public Job Creation Task Status",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "d38e07d0-fe63-4fce-a654-d8cf07cf264b",
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{customer_access_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "https://api.linkedin.com/v2/simpleJobPostingTasks?ids={{public_simplejobpostingtask_id}}",
+									"protocol": "https",
+									"host": [
+										"api",
+										"linkedin",
+										"com"
+									],
+									"path": [
+										"v2",
+										"simpleJobPostingTasks"
+									],
+									"query": [
+										{
+											"key": "ids",
+											"value": "{{public_simplejobpostingtask_id}}"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create Private Job",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "35b87e14-874d-440f-9199-549c56ce1177",
+										"exec": [
+											"var jsonData = JSON.parse(responseBody);",
+											"pm.globals.set(\"private_simplejobpostingtask_id\", jsonData.elements[0].id);",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{customer_access_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "x-restli-method",
+										"value": "batch_create"
+									},
+									{
+										"key": "Content-Type",
+										"name": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"elements\": [\n        {\n            \"integrationContext\": \"urn:li:organization:{{org_id}}\",\n            \"externalJobPostingId\": \"{{private_externalJobPostingId}}\",\n            \"title\": \"General Manager\",\n            \"description\": \"Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.\",\n            \"location\": \"San Francisco, CA\",\n            \"availability\": \"PRIVATE_TO_ATS_INTEGRATION\",\n            \"state\": \"LISTED\",\n            \"companyApplyUrl\": \"http://localhost:5000/jobs\",\n            \"listedAt\": {{$timestamp}}000\n        }\n    ]\n}"
+								},
+								"url": {
+									"raw": "https://api.linkedin.com/v2/simpleJobPostings",
+									"protocol": "https",
+									"host": [
+										"api",
+										"linkedin",
+										"com"
+									],
+									"path": [
+										"v2",
+										"simpleJobPostings"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get Private Job Creation Task Status",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "04dd1a3b-a88a-45d2-8ecd-4edcf704c116",
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{customer_access_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "https://api.linkedin.com/v2/simpleJobPostingTasks?ids={{private_simplejobpostingtask_id}}",
+									"protocol": "https",
+									"host": [
+										"api",
+										"linkedin",
+										"com"
+									],
+									"path": [
+										"v2",
+										"simpleJobPostingTasks"
+									],
+									"query": [
+										{
+											"key": "ids",
+											"value": "{{private_simplejobpostingtask_id}}"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "cf74b24b-beb9-4e95-8e1f-943b137ed5e8",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "84faf1dd-3623-42b4-8cef-1c1d731234ff",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					],
+					"protocolProfileBehavior": {},
+					"_postman_isSubFolder": true
+				},
+				{
+					"name": "Sync Candidates",
+					"item": [
+						{
+							"name": "Sync Candidates",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "3f50f714-b477-4cde-82f3-39c04e070a53",
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{customer_access_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PUT",
+								"header": [
+									{
+										"key": "x-restli-method",
+										"value": "batch_update"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"entities\": {\n    \"atsCandidateId={{candidate_id}}&dataProvider=ATS&integrationContext=urn:li:organization:{{org_id}}\": {\n      \"addresses\": [\n        {\n          \"line1\": \"31 Spooner St\",\n          \"city\": \"Quahog\",\n          \"geographicArea\": \"RI\",\n          \"geographicAreaType\": \"STATE\",\n          \"postalCode\": \"02802\",\n          \"country\": \"us\"\n        }\n      ],\n      \"atsCreatedAt\": {{$timestamp}}000,\n      \"atsLastModifiedAt\": {{$timestamp}}000,\n      \"currentCompanyName\": \"Candidate Test Company\",\n      \"currentJobTitle\": \"Quality Assurance\",\n      \"emailAddresses\": [\n        \"johndoe999986@outlook.com\"\n      ],\n      \"externalProfileUrl\": \"https://example.com/p-griffin\",\n      \"firstName\": \"john\",\n      \"lastName\": \"doe\",\n      \"middleInitial\": \"L\",\n      \"phoneNumbers\": [\n        {\n          \"number\": \"555-555-5555\",\n          \"extension\": \"1234\"\n        }\n      ],\n      \"prefix\": \"Mr\",\n      \"suffix\": \"Jr\"\n    }\n  }\n}\t"
+								},
+								"url": {
+									"raw": "https://api.linkedin.com/v2/atsCandidates?ids[0].atsCandidateId={{candidate_id}}&ids[0].dataProvider=ATS&ids[0].integrationContext=urn:li:organization:{{org_id}}",
+									"protocol": "https",
+									"host": [
+										"api",
+										"linkedin",
+										"com"
+									],
+									"path": [
+										"v2",
+										"atsCandidates"
+									],
+									"query": [
+										{
+											"key": "ids[0].atsCandidateId",
+											"value": "{{candidate_id}}"
+										},
+										{
+											"key": "ids[0].dataProvider",
+											"value": "ATS"
+										},
+										{
+											"key": "ids[0].integrationContext",
+											"value": "urn:li:organization:{{org_id}}"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Sync Candidates - Retrieve Candidate Matches",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "309d95c2-894c-4313-a1bf-027e264dbe33",
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{customer_access_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "https://api.linkedin.com/v2/atsCandidates?ids[0].atsCandidateId={{candidate_id}}&ids[0].dataProvider=ATS&ids[0].integrationContext=urn:li:organization:{{org_id}}",
+									"protocol": "https",
+									"host": [
+										"api",
+										"linkedin",
+										"com"
+									],
+									"path": [
+										"v2",
+										"atsCandidates"
+									],
+									"query": [
+										{
+											"key": "ids[0].atsCandidateId",
+											"value": "{{candidate_id}}"
+										},
+										{
+											"key": "ids[0].dataProvider",
+											"value": "ATS"
+										},
+										{
+											"key": "ids[0].integrationContext",
+											"value": "urn:li:organization:{{org_id}}"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "One Click Export - Attach Person URN",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{customer_access_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"name": "Content-Type",
+										"type": "text",
+										"value": "application/json"
+									},
+									{
+										"key": "x-restli-method",
+										"type": "text",
+										"value": "batch_partial_update"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"entities\": {\n    \"atsCandidateId={{candidate_id}}&dataProvider=ATS&integrationContext=urn:li:organization:{{org_id}}\": {\n      \"patch\": {\n        \"$set\": {\n          \"manualMatchedMember\": \"urn:li:person:{{person_id}}\"\n        }\n      }\n    }\n  }\n}"
+								},
+								"url": {
+									"raw": "https://api.linkedin.com/v2/atsCandidates?ids[0].atsCandidateId={{candidate_id}}&ids[0].dataProvider=ATS&ids[0].integrationContext=urn:li:organization:{{org_id}}",
+									"protocol": "https",
+									"host": [
+										"api",
+										"linkedin",
+										"com"
+									],
+									"path": [
+										"v2",
+										"atsCandidates"
+									],
+									"query": [
+										{
+											"key": "ids[0].atsCandidateId",
+											"value": "{{candidate_id}}"
+										},
+										{
+											"key": "ids[0].dataProvider",
+											"value": "ATS"
+										},
+										{
+											"key": "ids[0].integrationContext",
+											"value": "urn:li:organization:{{org_id}}"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"protocolProfileBehavior": {},
+					"_postman_isSubFolder": true
+				},
+				{
+					"name": "Sync Candidate Notes",
+					"item": [
+						{
+							"name": "Sync Candidate Notes",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{customer_access_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PUT",
+								"header": [
+									{
+										"key": "x-restli-method",
+										"value": "batch_update"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"entities\": {\n    \"{{note_id}}\": {\n    \"atsCreatedAt\": {{$timestamp}}000,\n      \"note\": \"This is a candidate note.\",\n      \"author\": {\n        \"firstName\": \"Rita\",\n        \"lastName\": \"Book\"\n      }\n    }\n}\n}"
+								},
+								"url": {
+									"raw": "https://api.linkedin.com/v2/atsCandidates/atsCandidateId={{candidate_id}}&dataProvider=ATS&integrationContext=urn:li:organization:{{org_id}}/notes?ids={{note_id}}",
+									"protocol": "https",
+									"host": [
+										"api",
+										"linkedin",
+										"com"
+									],
+									"path": [
+										"v2",
+										"atsCandidates",
+										"atsCandidateId={{candidate_id}}&dataProvider=ATS&integrationContext=urn:li:organization:{{org_id}}",
+										"notes"
+									],
+									"query": [
+										{
+											"key": "ids",
+											"value": "{{note_id}}"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"protocolProfileBehavior": {},
+					"_postman_isSubFolder": true
+				},
+				{
+					"name": "Sync Job Applications",
+					"item": [
+						{
+							"name": "Sync Job Applications",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{customer_access_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "x-restli-method",
+										"value": "batch_update",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"entities\": {\n    \"atsJobApplicationId={{application_id}}&dataProvider=ATS&integrationContext=urn:li:organization:{{org_id}}\": {\n      \"atsCandidateId\": \"{{candidate_id}}\",\n      \"atsCreatedAt\": {{$timestamp}}000,\n      \"atsLastModifiedAt\": {{$timestamp}}000,\n      \"atsJobPostingId\": \"{{public_externalJobPostingId}}\",\n      \"atsJobPostingName\": \"Senior Software Engineer\",\n      \"candidateEmail\": \"johndoe999986@outlook.com\",\n      \"firstName\": \"John\",\n      \"lastName\": \"Doe\",\n      \"source\": \"Referral\",\n      \"dispositionReason\": \"\"\n    }\n  }\n}"
+								},
+								"url": {
+									"raw": "https://api.linkedin.com/v2/atsApplications?ids[0].atsJobApplicationId={{application_id}}&ids[0].dataProvider=ATS&ids[0].integrationContext=urn:li:organization:{{org_id}}",
+									"protocol": "https",
+									"host": [
+										"api",
+										"linkedin",
+										"com"
+									],
+									"path": [
+										"v2",
+										"atsApplications"
+									],
+									"query": [
+										{
+											"key": "ids[0].atsJobApplicationId",
+											"value": "{{application_id}}"
+										},
+										{
+											"key": "ids[0].dataProvider",
+											"value": "ATS"
+										},
+										{
+											"key": "ids[0].integrationContext",
+											"value": "urn:li:organization:{{org_id}}"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"protocolProfileBehavior": {},
+					"_postman_isSubFolder": true
+				},
+				{
+					"name": "Sync  Job Application Notes",
+					"item": [
+						{
+							"name": "Sync Job Application Notes",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{customer_access_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "x-restli-method",
+										"value": "batch_update"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"entities\": {\n    \"APPL_NOTE_0001\": {\n      \"atsCreatedAt\": {{$timestamp}}000,\n      \"note\": \"Great resume, we should review.\",\n      \"author\": {\n        \"firstName\": \"Rita\",\n        \"lastName\": \"Book\"\n      }\n    }\n}\n}"
+								},
+								"url": {
+									"raw": "https://api.linkedin.com/v2/atsApplications/atsJobApplicationId={{application_id}}&dataProvider=ATS&integrationContext=urn:li:organization:{{org_id}}/notes?ids=APPL_NOTE_0001",
+									"protocol": "https",
+									"host": [
+										"api",
+										"linkedin",
+										"com"
+									],
+									"path": [
+										"v2",
+										"atsApplications",
+										"atsJobApplicationId={{application_id}}&dataProvider=ATS&integrationContext=urn:li:organization:{{org_id}}",
+										"notes"
+									],
+									"query": [
+										{
+											"key": "ids",
+											"value": "APPL_NOTE_0001"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"protocolProfileBehavior": {},
+					"_postman_isSubFolder": true
+				},
+				{
+					"name": "Sync Application Interview Feedback",
+					"item": [
+						{
+							"name": "Sync Application Interview Feedback",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{customer_access_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"entities\": {\n    \"APPL_INTERVIEW_0001\": {\n      \"atsCreatedAt\": {{$timestamp}}000,\n      \"evaluations\": [\n        {\n          \"attribute\": \"Verbal Communication\",\n          \"result\": \"4/5\"\n        }\n      ],\n      \"feedback\": \"Great interview!\",\n      \"interviewer\": {\n        \"firstName\": \"Rita\",\n        \"lastName\": \"Book\"\n      }\n    }\n }\n}"
+								},
+								"url": {
+									"raw": "https://api.linkedin.com/v2/atsApplications/atsJobApplicationId={{application_id}}&dataProvider=ATS&integrationContext=urn:li:organization:{{org_id}}/interviewFeedback?ids=APPL_INTERVIEW_0001",
+									"protocol": "https",
+									"host": [
+										"api",
+										"linkedin",
+										"com"
+									],
+									"path": [
+										"v2",
+										"atsApplications",
+										"atsJobApplicationId={{application_id}}&dataProvider=ATS&integrationContext=urn:li:organization:{{org_id}}",
+										"interviewFeedback"
+									],
+									"query": [
+										{
+											"key": "ids",
+											"value": "APPL_INTERVIEW_0001"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"protocolProfileBehavior": {},
+					"_postman_isSubFolder": true
+				},
+				{
+					"name": "Sync Job Application Stages",
+					"item": [
+						{
+							"name": "Sync Application Stages",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "4e4dcebb-72fa-4016-a371-d842d8cee022",
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{customer_access_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PUT",
+								"header": [
+									{
+										"key": "x-restli-method",
+										"value": "batch_update"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"entities\": {\n  \t\"STAGE001\": {\n    \"atsCreatedAt\": {{$timestamp}}000,\n    \"stage\": \"New\"\n  \t},\n    \"STAGE002\": {\n    \"atsCreatedAt\": {{$timestamp}}000,\n    \"stage\": \"Phone Interview\"\n    },\n    \"STAGE003\": {\n    \"atsCreatedAt\": {{$timestamp}}000,\n    \"stage\": \"TPS\"\n  }\n}\n}\n"
+								},
+								"url": {
+									"raw": "https://api.linkedin.com/v2/atsApplications/atsJobApplicationId={{application_id}}&dataProvider=ATS&integrationContext=urn:li:organization:{{org_id}}/stages?ids=STAGE001&ids=STAGE002&ids=STAGE003",
+									"protocol": "https",
+									"host": [
+										"api",
+										"linkedin",
+										"com"
+									],
+									"path": [
+										"v2",
+										"atsApplications",
+										"atsJobApplicationId={{application_id}}&dataProvider=ATS&integrationContext=urn:li:organization:{{org_id}}",
+										"stages"
+									],
+									"query": [
+										{
+											"key": "ids",
+											"value": "STAGE001"
+										},
+										{
+											"key": "ids",
+											"value": "STAGE002"
+										},
+										{
+											"key": "ids",
+											"value": "STAGE003"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "b1f7b771-18e0-43b7-988b-200fa6323823",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "7486123d-355d-4685-be69-11a2d2a991d7",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					],
+					"protocolProfileBehavior": {},
+					"_postman_isSubFolder": true
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "Module 3 - Retrieve Data from Linkedin",
+			"item": [
+				{
+					"name": "Retrieve Exported Candidate from PUSH Notification",
+					"item": [
+						{
+							"name": "GET Notification Type EXPORT_CANDIDATE_PROFILE",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{customer_access_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "https://api.linkedin.com/v2/exportedCandidates?q=request&requestId={{Enter_Request_ID_obtained_from_POST_in_CallbackURL}}",
+									"protocol": "https",
+									"host": [
+										"api",
+										"linkedin",
+										"com"
+									],
+									"path": [
+										"v2",
+										"exportedCandidates"
+									],
+									"query": [
+										{
+											"key": "q",
+											"value": "request"
+										},
+										{
+											"key": "requestId",
+											"value": "{{Enter_Request_ID_obtained_from_POST_in_CallbackURL}}"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"auth": {
+						"type": "noauth"
+					},
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "05ec7206-7b08-4470-be6d-bd28182d0314",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "bfd87741-7ba3-46cc-88fb-4275005d3e3c",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					],
+					"protocolProfileBehavior": {},
+					"_postman_isSubFolder": true
+				},
+				{
+					"name": "Retrieve Recruiter Prospect Interactions",
+					"item": [
+						{
+							"name": "Retrieve Recruiter Seatholders",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "61f89aac-ae63-4197-9b67-d27e3cc2ace9",
+										"exec": [
+											"var jsonData = JSON.parse(responseBody);",
+											"console.log(jsonData.elements.id)"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{customer_access_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "https://api.linkedin.com/v2/seats?q=seatsByAttributes&fields=id&active=true&count=100&start=0&contracts=urn:li:contract:{{contract_id}}",
+									"protocol": "https",
+									"host": [
+										"api",
+										"linkedin",
+										"com"
+									],
+									"path": [
+										"v2",
+										"seats"
+									],
+									"query": [
+										{
+											"key": "q",
+											"value": "seatsByAttributes"
+										},
+										{
+											"key": "fields",
+											"value": "id"
+										},
+										{
+											"key": "active",
+											"value": "true"
+										},
+										{
+											"key": "count",
+											"value": "100"
+										},
+										{
+											"key": "start",
+											"value": "0"
+										},
+										{
+											"key": "contracts",
+											"value": "urn:li:contract:{{contract_id}}"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Retrieve InMail History",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "d842ddb4-d4e9-4783-bd18-727701eb4d6c",
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{customer_access_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "https://api.linkedin.com/v2/conversationEvents?q=criteria&viewer=urn:li:seat:{{Enter_ID_Value_Present_In_Response_of_Retrieve_Recruiter_Seatholders_API}}&timeRange.end={{Epoch in milliseconds}}&timeRange.start={{Epoch in milliseconds}}&start=0&count=50",
+									"protocol": "https",
+									"host": [
+										"api",
+										"linkedin",
+										"com"
+									],
+									"path": [
+										"v2",
+										"conversationEvents"
+									],
+									"query": [
+										{
+											"key": "q",
+											"value": "criteria"
+										},
+										{
+											"key": "viewer",
+											"value": "urn:li:seat:{{Enter_ID_Value_Present_In_Response_of_Retrieve_Recruiter_Seatholders_API}}"
+										},
+										{
+											"key": "timeRange.end",
+											"value": "{{Epoch in milliseconds}}"
+										},
+										{
+											"key": "timeRange.start",
+											"value": "{{Epoch in milliseconds}}"
+										},
+										{
+											"key": "start",
+											"value": "0"
+										},
+										{
+											"key": "count",
+											"value": "50"
+										},
+										{
+											"key": "fields",
+											"value": "id",
+											"disabled": true
+										},
+										{
+											"key": "threadUrn",
+											"value": "{{Thread URN in the format urn:li:messagingThread:id}}",
+											"disabled": true
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Retrieve InMail Stub Profiles",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "084b1103-1b3d-4310-b688-135698f9a8ea",
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{customer_access_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "https://api.linkedin.com/v2/mailStubs?q=contract&start=0&count=50&contract=urn:li:contract:{{contract_id}}&createdDateStart={{Epoch in milliseconds}}&createdDateEnd={{Epoch in milliseconds}}&owners=urn:li:seat:{{Enter_ID_Value_Present_In_Response_of_Retrieve_Recruiter_Seatholders_API}}",
+									"protocol": "https",
+									"host": [
+										"api",
+										"linkedin",
+										"com"
+									],
+									"path": [
+										"v2",
+										"mailStubs"
+									],
+									"query": [
+										{
+											"key": "q",
+											"value": "contract"
+										},
+										{
+											"key": "start",
+											"value": "0"
+										},
+										{
+											"key": "count",
+											"value": "50"
+										},
+										{
+											"key": "contract",
+											"value": "urn:li:contract:{{contract_id}}"
+										},
+										{
+											"key": "createdDateStart",
+											"value": "{{Epoch in milliseconds}}"
+										},
+										{
+											"key": "createdDateEnd",
+											"value": "{{Epoch in milliseconds}}"
+										},
+										{
+											"key": "owners",
+											"value": "urn:li:seat:{{Enter_ID_Value_Present_In_Response_of_Retrieve_Recruiter_Seatholders_API}}"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Retrieve Prospect Notes",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{customer_access_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "https://api.linkedin.com/v2/prospectNotes?q=criteria&start=0&contract=urn:li:contract:{{contract_id}}&cutoffDate={{Epoch in milliseconds}}&beforeDate={{Epoch in milliseconds}}&count=100&owners=urn:li:seat:{{Enter_ID_Value_Present_In_Response_of_Retrieve_Recruiter_Seatholders_API}}",
+									"protocol": "https",
+									"host": [
+										"api",
+										"linkedin",
+										"com"
+									],
+									"path": [
+										"v2",
+										"prospectNotes"
+									],
+									"query": [
+										{
+											"key": "q",
+											"value": "criteria"
+										},
+										{
+											"key": "start",
+											"value": "0"
+										},
+										{
+											"key": "contract",
+											"value": "urn:li:contract:{{contract_id}}"
+										},
+										{
+											"key": "cutoffDate",
+											"value": "{{Epoch in milliseconds}}"
+										},
+										{
+											"key": "beforeDate",
+											"value": "{{Epoch in milliseconds}}"
+										},
+										{
+											"key": "count",
+											"value": "100"
+										},
+										{
+											"key": "owners",
+											"value": "urn:li:seat:{{Enter_ID_Value_Present_In_Response_of_Retrieve_Recruiter_Seatholders_API}}"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"protocolProfileBehavior": {},
+					"_postman_isSubFolder": true
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "Module 4 - Define Permissions via ACLs",
+			"item": [
+				{
+					"name": "Sync ACLs",
+					"item": [
+						{
+							"name": "Upsert Entity ACL",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{customer_access_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PUT",
+								"header": [
+									{
+										"key": "x-restli-method",
+										"value": "batch_update"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"entities\": {\n  \t\t\"dataProvider=ATS&integrationContext=urn:li:organization:{{org_id}}&atsEntityType=JOB_POSTING&atsEntityId={{public_externalJobPostingId}}&atsEntityAclId=TEST_JOBS\": {}\n      }\n}\n"
+								},
+								"url": {
+									"raw": "https://api.linkedin.com/v2/atsEntityAcls?ids[0].atsEntityAclId=TEST_JOBS&ids[0].dataProvider=ATS&ids[0].integrationContext=urn:li:organization:{{org_id}}&ids[0].atsEntityType=JOB_POSTING&ids[0].atsEntityId={{public_externalJobPostingId}}",
+									"protocol": "https",
+									"host": [
+										"api",
+										"linkedin",
+										"com"
+									],
+									"path": [
+										"v2",
+										"atsEntityAcls"
+									],
+									"query": [
+										{
+											"key": "ids[0].atsEntityAclId",
+											"value": "TEST_JOBS"
+										},
+										{
+											"key": "ids[0].dataProvider",
+											"value": "ATS"
+										},
+										{
+											"key": "ids[0].integrationContext",
+											"value": "urn:li:organization:{{org_id}}"
+										},
+										{
+											"key": "ids[0].atsEntityType",
+											"value": "JOB_POSTING"
+										},
+										{
+											"key": "ids[0].atsEntityId",
+											"value": "{{public_externalJobPostingId}}"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Retrieve Entity ACL",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{customer_access_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "https://api.linkedin.com/v2/atsEntityAcls?atsEntityId={{public_externalJobPostingId}}&atsEntityType=JOB_POSTING&dataProvider=ATS&integrationContext=urn:li:organization:{{org_id}}&q=criteria&start=0&count=100",
+									"protocol": "https",
+									"host": [
+										"api",
+										"linkedin",
+										"com"
+									],
+									"path": [
+										"v2",
+										"atsEntityAcls"
+									],
+									"query": [
+										{
+											"key": "atsEntityId",
+											"value": "{{public_externalJobPostingId}}"
+										},
+										{
+											"key": "atsEntityType",
+											"value": "JOB_POSTING"
+										},
+										{
+											"key": "dataProvider",
+											"value": "ATS"
+										},
+										{
+											"key": "integrationContext",
+											"value": "urn:li:organization:{{org_id}}"
+										},
+										{
+											"key": "q",
+											"value": "criteria"
+										},
+										{
+											"key": "start",
+											"value": "0"
+										},
+										{
+											"key": "count",
+											"value": "100"
+										},
+										{
+											"key": "fields",
+											"value": "atsEntityId,atsEntityAclId",
+											"disabled": true
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete Entity ACL",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{customer_access_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": []
+								},
+								"url": {
+									"raw": "https://api.linkedin.com/v2/atsEntityAcls?ids[0].atsEntityAclId=TEST_JOBS&ids[0].dataProvider=ATS&ids[0].integrationContext=urn:li:organization:{{org_id}}&ids[0].atsEntityId={{public_externalJobPostingId}}&ids[0].atsEntityType=JOB_POSTING",
+									"protocol": "https",
+									"host": [
+										"api",
+										"linkedin",
+										"com"
+									],
+									"path": [
+										"v2",
+										"atsEntityAcls"
+									],
+									"query": [
+										{
+											"key": "ids[0].atsEntityAclId",
+											"value": "TEST_JOBS"
+										},
+										{
+											"key": "ids[0].dataProvider",
+											"value": "ATS"
+										},
+										{
+											"key": "ids[0].integrationContext",
+											"value": "urn:li:organization:{{org_id}}"
+										},
+										{
+											"key": "ids[0].atsEntityId",
+											"value": "{{public_externalJobPostingId}}"
+										},
+										{
+											"key": "ids[0].atsEntityType",
+											"value": "JOB_POSTING"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "0918ad93-6b37-496d-968e-3f0cac3da8a5",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "304be111-b586-4708-be45-2bb87dee24e5",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					],
+					"protocolProfileBehavior": {},
+					"_postman_isSubFolder": true
+				},
+				{
+					"name": "Sync ACL Assignees",
+					"item": [
+						{
+							"name": "Upsert Entity ACL Assignees",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{customer_access_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PUT",
+								"header": [
+									{
+										"key": "x-restli-method",
+										"value": "batch_update"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "X-RestLi-Protocol-Version",
+										"value": "2.0.0",
+										"disabled": true
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"entities\": {\n    \"dataProvider=ATS&integrationContext=urn:li:organization:{{org_id}}&atsEntityType=JOB_POSTING&atsEntityAclId=TEST_JOBS&assignee=urn:li:person:{{person_id}}\": {}\n  }\n}"
+								},
+								"url": {
+									"raw": "https://api.linkedin.com/v2/atsEntityAclAssignees?ids[0].atsEntityAclId=TEST_JOBS&ids[0].integrationContext=urn:li:organization:{{org_id}}&ids[0].dataProvider=ATS&ids[0].assignee=urn:li:person:{{person_id}}&ids[0].atsEntityType=JOB_POSTING",
+									"protocol": "https",
+									"host": [
+										"api",
+										"linkedin",
+										"com"
+									],
+									"path": [
+										"v2",
+										"atsEntityAclAssignees"
+									],
+									"query": [
+										{
+											"key": "ids[0].atsEntityAclId",
+											"value": "TEST_JOBS"
+										},
+										{
+											"key": "ids[0].integrationContext",
+											"value": "urn:li:organization:{{org_id}}"
+										},
+										{
+											"key": "ids[0].dataProvider",
+											"value": "ATS"
+										},
+										{
+											"key": "ids[0].assignee",
+											"value": "urn:li:person:{{person_id}}"
+										},
+										{
+											"key": "ids[0].atsEntityType",
+											"value": "JOB_POSTING"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Retrieve Entity ACL Assignees",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{customer_access_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "https://api.linkedin.com/v2/atsEntityAclAssignees?q=criteria&assignee=urn:li:person:{{person_id}}&dataProvider=ATS&integrationContext=urn:li:organization:{{org_id}}",
+									"protocol": "https",
+									"host": [
+										"api",
+										"linkedin",
+										"com"
+									],
+									"path": [
+										"v2",
+										"atsEntityAclAssignees"
+									],
+									"query": [
+										{
+											"key": "q",
+											"value": "criteria"
+										},
+										{
+											"key": "assignee",
+											"value": "urn:li:person:{{person_id}}"
+										},
+										{
+											"key": "dataProvider",
+											"value": "ATS"
+										},
+										{
+											"key": "integrationContext",
+											"value": "urn:li:organization:{{org_id}}"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete Entity ACL Assignees",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{customer_access_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": []
+								},
+								"url": {
+									"raw": "https://api.linkedin.com/v2/atsEntityAclAssignees?ids[0].atsEntityAclId=TEST_JOBS&ids[0].dataProvider=ATS&ids[0].integrationContext=urn:li:organization:{{org_id}}&ids[0].assignee=urn:li:person:{{person_id}}&ids[0].atsEntityType=JOB_POSTING",
+									"protocol": "https",
+									"host": [
+										"api",
+										"linkedin",
+										"com"
+									],
+									"path": [
+										"v2",
+										"atsEntityAclAssignees"
+									],
+									"query": [
+										{
+											"key": "ids[0].atsEntityAclId",
+											"value": "TEST_JOBS"
+										},
+										{
+											"key": "ids[0].dataProvider",
+											"value": "ATS"
+										},
+										{
+											"key": "ids[0].integrationContext",
+											"value": "urn:li:organization:{{org_id}}"
+										},
+										{
+											"key": "ids[0].assignee",
+											"value": "urn:li:person:{{person_id}}"
+										},
+										{
+											"key": "ids[0].atsEntityType",
+											"value": "JOB_POSTING"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"protocolProfileBehavior": {},
+					"_postman_isSubFolder": true
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "Module 5 - Delete Synced Data",
+			"item": [
+				{
+					"name": "Sync Candidates - Delete",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{customer_access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "https://api.linkedin.com/v2/atsCandidates?ids[0].atsCandidateId={{candidate_id}}&ids[0].dataProvider=ATS&ids[0].integrationContext=urn:li:organization:{{org_id}}",
+							"protocol": "https",
+							"host": [
+								"api",
+								"linkedin",
+								"com"
+							],
+							"path": [
+								"v2",
+								"atsCandidates"
+							],
+							"query": [
+								{
+									"key": "ids[0].atsCandidateId",
+									"value": "{{candidate_id}}"
+								},
+								{
+									"key": "ids[0].dataProvider",
+									"value": "ATS"
+								},
+								{
+									"key": "ids[0].integrationContext",
+									"value": "urn:li:organization:{{org_id}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Sync Candidate Notes - Delete Note",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{customer_access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "https://api.linkedin.com/v2/atsCandidates/atsCandidateId={{candidate_id}}&dataProvider=ATS&integrationContext=urn:li:organization:{{org_id}}/notes?ids={{note_id}}",
+							"protocol": "https",
+							"host": [
+								"api",
+								"linkedin",
+								"com"
+							],
+							"path": [
+								"v2",
+								"atsCandidates",
+								"atsCandidateId={{candidate_id}}&dataProvider=ATS&integrationContext=urn:li:organization:{{org_id}}",
+								"notes"
+							],
+							"query": [
+								{
+									"key": "ids",
+									"value": "{{note_id}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Sync Job Applications - Delete",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{customer_access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "https://api.linkedin.com/v2/atsApplications?ids[0].atsJobApplicationId={{application_id}}&ids[0].dataProvider=ATS&ids[0].integrationContext=urn:li:organization:{{org_id}}",
+							"protocol": "https",
+							"host": [
+								"api",
+								"linkedin",
+								"com"
+							],
+							"path": [
+								"v2",
+								"atsApplications"
+							],
+							"query": [
+								{
+									"key": "ids[0].atsJobApplicationId",
+									"value": "{{application_id}}"
+								},
+								{
+									"key": "ids[0].dataProvider",
+									"value": "ATS"
+								},
+								{
+									"key": "ids[0].integrationContext",
+									"value": "urn:li:organization:{{org_id}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Sync Job Application Notes - Delete",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{customer_access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "https://api.linkedin.com/v2/atsApplications/atsJobApplicationId={{application_id}}&dataProvider=ATS&integrationContext=urn:li:organization:{{org_id}}/notes?ids=APPL_NOTE_0001",
+							"protocol": "https",
+							"host": [
+								"api",
+								"linkedin",
+								"com"
+							],
+							"path": [
+								"v2",
+								"atsApplications",
+								"atsJobApplicationId={{application_id}}&dataProvider=ATS&integrationContext=urn:li:organization:{{org_id}}",
+								"notes"
+							],
+							"query": [
+								{
+									"key": "ids",
+									"value": "APPL_NOTE_0001"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Sync Application Interview Feedback - Delete",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{customer_access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "https://api.linkedin.com/v2/atsApplications/atsJobApplicationId={{application_id}}&dataProvider=ATS&integrationContext=urn:li:organization:{{org_id}}/interviewFeedback?ids=APPL_INTERVIEW_0001",
+							"protocol": "https",
+							"host": [
+								"api",
+								"linkedin",
+								"com"
+							],
+							"path": [
+								"v2",
+								"atsApplications",
+								"atsJobApplicationId={{application_id}}&dataProvider=ATS&integrationContext=urn:li:organization:{{org_id}}",
+								"interviewFeedback"
+							],
+							"query": [
+								{
+									"key": "ids",
+									"value": "APPL_INTERVIEW_0001"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Sync Application Stages - Delete",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "190f830b-9a4b-4343-aed7-e8c789e71baf",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{customer_access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "https://api.linkedin.com/v2/atsApplications/atsJobApplicationId={{application_id}}&dataProvider=ATS&integrationContext=urn:li:organization:{{org_id}}/stages?ids=STAGE001&ids=STAGE002&ids=STAGE003",
+							"protocol": "https",
+							"host": [
+								"api",
+								"linkedin",
+								"com"
+							],
+							"path": [
+								"v2",
+								"atsApplications",
+								"atsJobApplicationId={{application_id}}&dataProvider=ATS&integrationContext=urn:li:organization:{{org_id}}",
+								"stages"
+							],
+							"query": [
+								{
+									"key": "ids",
+									"value": "STAGE001"
+								},
+								{
+									"key": "ids",
+									"value": "STAGE002"
+								},
+								{
+									"key": "ids",
+									"value": "STAGE003"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "Get Customer Application Access Token",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "28db3ad5-cb16-442d-8909-4cbc8cb5feef",
+						"exec": [
+							"var jsonData = JSON.parse(responseBody);",
+							"pm.globals.set(\"customer_access_token\", jsonData.access_token);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/x-www-form-urlencoded",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "grant_type",
+							"value": "client_credentials",
+							"type": "text"
+						},
+						{
+							"key": "client_id",
+							"value": "{{customer_app_client_id}}",
+							"type": "text"
+						},
+						{
+							"key": "client_secret",
+							"value": "{{customer_app_client_secret}}",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "https://www.linkedin.com/oauth/v2/accessToken",
+					"protocol": "https",
+					"host": [
+						"www",
+						"linkedin",
+						"com"
+					],
+					"path": [
+						"oauth",
+						"v2",
+						"accessToken"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET Person ID - With 3 legged OAuth Flow - r_liteprofile permission",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "ec0a03a5-e6f3-4944-9a38-0f585cf025ef",
+						"exec": [
+							"var jsonData = JSON.parse(responseBody);",
+							"pm.globals.set(\"person_id\", jsonData.id);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "oauth2",
+					"oauth2": [
+						{
+							"key": "accessToken",
+							"value": "",
+							"type": "string"
+						},
+						{
+							"key": "tokenType",
+							"type": "any"
+						},
+						{
+							"key": "addTokenTo",
+							"value": "header",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://api.linkedin.com/v2/me?fields=id",
+					"protocol": "https",
+					"host": [
+						"api",
+						"linkedin",
+						"com"
+					],
+					"path": [
+						"v2",
+						"me"
+					],
+					"query": [
+						{
+							"key": "fields",
+							"value": "id"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "ba4e2c63-0854-4d75-a449-dbaa41ee25b9",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "3bf21e44-2ffc-4e26-914a-1e56194fc098",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"id": "25fc2d9a-b4b6-482c-b67f-d2ad7c5d4a1d",
+			"key": "partner_app_client_id",
+			"value": "<Partner_application_api_key>",
+			"type": "string"
+		},
+		{
+			"id": "eab91f4f-9f52-4283-9194-cb8d5ff3e4d2",
+			"key": "partner_app_client_secret",
+			"value": "<Partner_application_client_secret>",
+			"type": "string"
+		},
+		{
+			"id": "de1870bb-60f8-40c3-be6d-b41dbf71b923",
+			"key": "org_id",
+			"value": "<organizationid present in org urn>",
+			"type": "string"
+		},
+		{
+			"id": "78490488-26c0-4a55-a0c1-f5fb175d8618",
+			"key": "contract_id",
+			"value": "<contractid present in contract urn>",
+			"type": "string"
+		},
+		{
+			"id": "f73ef727-c651-4aab-9538-9253d52f2cb3",
+			"key": "customer_app_client_id",
+			"value": "<Customer_application_api_key>",
+			"type": "string"
+		},
+		{
+			"id": "75fd83b5-db36-4b12-9b26-fd002b27fd30",
+			"key": "customer_app_client_secret",
+			"value": "<Customer_application_secret>",
+			"type": "string"
+		},
+		{
+			"id": "65a34336-9853-4ad6-ba1a-3da103a78d6e",
+			"key": "customer_name",
+			"value": "<Your Customer Name>",
+			"type": "string"
+		},
+		{
+			"id": "f4a99626-c728-4cda-96fb-d6a1f32fa2d0",
+			"key": "unique_foreign_id",
+			"value": "<Unique_id_used_to_discover_customer_in_partner_ATS>",
+			"type": "string"
+		},
+		{
+			"id": "a4bf539e-eb79-4c25-96b8-c40858bad1a0",
+			"key": "candidate_id",
+			"value": "TEST_CANDIDATE_ID_0001",
+			"type": "string"
+		},
+		{
+			"id": "6163b271-63d1-4cfd-adff-2d29d9b791bc",
+			"key": "note_id",
+			"value": "TEST_NOTE_ID_0001",
+			"type": "string"
+		},
+		{
+			"id": "83e86e10-fab4-4620-88d7-93ad19dfb97d",
+			"key": "application_id",
+			"value": "TEST_APPLICATION_ID_0001",
+			"type": "string"
+		},
+		{
+			"id": "8e9a8a50-b70b-4502-a374-3b691fe22e79",
+			"key": "private_externalJobPostingId",
+			"value": "TEST_EXTERNAL_JOB_ID_0001",
+			"type": "string"
+		},
+		{
+			"id": "ac59ba63-84cf-466c-8e78-c7c43a52656d",
+			"key": "public_externalJobPostingId",
+			"value": "TEST_EXTERNAL_JOB_ID_0002",
+			"type": "string"
+		}
+	],
+	"protocolProfileBehavior": {}
+}

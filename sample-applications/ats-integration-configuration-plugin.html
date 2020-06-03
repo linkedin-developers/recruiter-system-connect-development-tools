@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">  
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+  </head>
+  <body>
+    <script type="text/javascript" src="https://platform.linkedin.com/xdoor/scripts/in.js">
+    api_key: <CUSTOMER_APPLICATION_CLIENT_ID>
+    extensions: ATSIntegrationWidget@https://www.linkedin.com/recruiter/widget/ATSIntegration
+    </script>
+
+    <script type="IN/ATSIntegrationWidget"
+    data-supported-bundled-integration-types="RECRUITER_SYSTEM_CONNECT_COMPANY,RECRUITER_SYSTEM_CONNECT_CONTRACT,APPLY_WITH_LINKEDIN,APPLY_STARTERS_EXP"
+    data-onintegrate="integrationRequest"
+    data-width="500" >
+    </script>
+
+    <script>
+      function integrationRequest(integrations) {
+         console.log("Integrations:", integrations);
+      }
+    </script>
+  </body>
+</html>
